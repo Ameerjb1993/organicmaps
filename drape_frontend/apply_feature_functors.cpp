@@ -472,6 +472,8 @@ void ApplyPointFeature::ProcessPointRule(Stylist::TRuleWrapper const & rule)
     params.m_depthLayer = m_depthLayer;
     params.m_depthTestEnabled = m_depthLayer != DepthLayer::NavigationLayer &&
       m_depthLayer != DepthLayer::OverlayLayer;
+    // @todo: m_depthTestEnabled is false always?
+    ASSERT(!params.m_depthTestEnabled, (params.m_titleDecl.m_primaryText));
     params.m_minVisibleScale = m_minVisibleScale;
     params.m_rank = m_rank;
     params.m_posZ = m_posZ;
@@ -508,6 +510,8 @@ void ApplyPointFeature::Finish(ref_ptr<dp::TextureManager> texMng)
     params.m_tileCenter = m_tileRect.Center();
     params.m_depthTestEnabled = m_depthLayer != DepthLayer::NavigationLayer &&
       m_depthLayer != DepthLayer::OverlayLayer;
+    // @todo: m_depthTestEnabled is false always?
+    ASSERT(!params.m_depthTestEnabled, (params.m_featureId));
     params.m_depth = m_symbolDepth;
     params.m_depthLayer = m_depthLayer;
     params.m_minVisibleScale = m_minVisibleScale;

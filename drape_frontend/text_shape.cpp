@@ -285,7 +285,11 @@ void TextShape::DrawSubString(ref_ptr<dp::GraphicsContext> context, StraightText
                               bool isPrimary, bool isOptional) const
 {
   glsl::vec2 const pt = glsl::ToVec2(ConvertToLocal(m_basePoint, m_params.m_tileCenter, kShapeCoordScalar));
-  layout.SetBasePosition(glsl::vec4(pt, m_params.m_depth, -m_params.m_posZ), baseOffset);
+  // Don't pass a real m_params.m_depth value, because captions never overlap
+  // (the displacement engine takes care of this).
+  // But passing it in will make captions out of [dp::kMinDepth, dp::kMaxDepth]
+  // not rendered at all - avoid this so that captions priority range is not restricted.
+  layout.SetBasePosition(glsl::vec4(pt, 0 /* depth */, -m_params.m_posZ), baseOffset);
 
   dp::Color outlineColor = isPrimary ? m_params.m_titleDecl.m_primaryTextFont.m_outlineColor
                                      : m_params.m_titleDecl.m_secondaryTextFont.m_outlineColor;

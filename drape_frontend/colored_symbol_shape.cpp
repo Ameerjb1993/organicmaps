@@ -109,7 +109,11 @@ void ColoredSymbolShape::Draw(ref_ptr<dp::GraphicsContext> context, ref_ptr<dp::
 
   glsl::vec2 const pt = glsl::ToVec2(ConvertToLocal(m_point, m_params.m_tileCenter,
                                                     kShapeCoordScalar));
-  glsl::vec3 const position = glsl::vec3(pt, m_params.m_depth);
+  // Don't pass a real m_params.m_depth value, because shields never overlap
+  // (the displacement engine takes care of this).
+  // But passing it in will make shields out of [dp::kMinDepth, dp::kMaxDepth]
+  // not rendered at all - avoid this so that shields priority range is not restricted.
+  glsl::vec3 const position = glsl::vec3(pt, 0 /* depth */);
 
   buffer_vector<V, 48> buffer;
 

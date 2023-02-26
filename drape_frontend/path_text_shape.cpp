@@ -159,7 +159,11 @@ drape_ptr<dp::OverlayHandle> PathTextShape::CreateOverlayHandle(uint32_t textInd
                           m_tileCoords, m_baseTextIndex + textIndex);
   auto const layout = m_context->GetLayout();
   auto const priority = GetOverlayPriority(textIndex, layout->GetText().size());
-  return make_unique_dp<PathTextHandle>(overlayId, m_context, m_params.m_depth,
+  // Don't pass a real m_params.m_depth value, because path texts never overlap
+  // (the displacement engine takes care of this).
+  // But passing it in will make path texts out of [dp::kMinDepth, dp::kMaxDepth]
+  // not rendered at all - avoid this so that path texts priority range is not restricted.
+  return make_unique_dp<PathTextHandle>(overlayId, m_context, 0 /* depth */,
                                         textIndex, priority, layout->GetFixedHeight(),
                                         textures, m_params.m_minVisibleScale, true /* isBillboard */);
 }

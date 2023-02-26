@@ -232,7 +232,7 @@ std::string SquareHandle::GetOverlayDebugInfo()
 /// @param[in] depth        Manual priority from styles (bigger is better)
 uint64_t CalculateOverlayPriority(int minZoomLevel, uint8_t rank, float depth)
 {
-  ASSERT(0 <= depth && depth <= 100000, (depth));
+  ASSERT(0 <= depth && depth <= 190000, (depth));
 
   // Even if minZoomLevel < 0 (-1 is not visible), we will get more consistent |minZoom| value (less is worse).
   ASSERT_GREATER_OR_EQUAL(minZoomLevel, 0, ());

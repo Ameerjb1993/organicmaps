@@ -173,7 +173,11 @@ void PoiSymbolShape::Draw(ref_ptr<dp::GraphicsContext> context, ref_ptr<dp::Batc
   textures->GetSymbolRegion(m_params.m_symbolName, region);
 
   glsl::vec2 const pt = glsl::ToVec2(ConvertToLocal(m_pt, m_params.m_tileCenter, kShapeCoordScalar));
-  glsl::vec4 const position = glsl::vec4(pt, m_params.m_depth, -m_params.m_posZ);
+  // Don't pass a real m_params.m_depth value, because icons never overlap
+  // (the displacement engine takes care of this).
+  // But passing it in will make icons out of [dp::kMinDepth, dp::kMaxDepth]
+  // not rendered at all - avoid this so that icons priority range is not restricted.
+  glsl::vec4 const position = glsl::vec4(pt, 0 /* depth */, -m_params.m_posZ);
 
   auto const createOverlayHandle = [this](auto const & vertexes) -> drape_ptr<dp::OverlayHandle>
   {
