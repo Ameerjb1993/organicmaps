@@ -110,7 +110,7 @@ def prettify_zooms(zooms):
 
 display_priorities = False
 display_inconsistent_zooms = False
-use_overlays_min_vis_zooms = False
+use_overlays_min_vis_zooms = True
 use_min_vis_zoom_sort = True
 use_shields_hardcode = False
 
