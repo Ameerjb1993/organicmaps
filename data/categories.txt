@@ -11692,11 +11692,11 @@ sk:Garáž
 fa:گاراژ
 mr:गॅरेज
 
-highway-rest_area
-en:Highway Rest Area
+highway-rest_area|highway-services
+en:4Rest Area
 en-GB:Lay By|rest area
 en-AU:Rest Area|lay by
-ru:Зона отдыха на трассе
+ru:Зона отдыха|Место отдыха
 bg:Почивка|магистрала|Почивна зона
 ar:استراحة
 cs:Odpočívadlo
@@ -11728,6 +11728,24 @@ zh-Hant:休息區
 el:Χώρος ανάπαυσης αυτοκινητιστών
 sk:Odpočívadlo
 mr:महामार्ग विश्रांती क्षेत्र
+
+highway-services
+en:4Service Area|service station|travel plaza
+de:Raststätte
+es:Área de servicio
+et:Teenindusala
+fr:Aire de service
+ja:サービスエリア
+mr:सेवा क्षेत्र
+nl:4Servicegebied
+pl:Miejsce obsługi podróżnych
+pt:Área de serviço
+pt-BR:Área de serviços de estrada
+ru:Зона обслуживания
+tr:4Servis Alanı
+uk:Зона обслуговування
+zh-Hans:服务区
+zh-Hant:服務區
 
 man_made-chimney
 en:Factory Chimney
