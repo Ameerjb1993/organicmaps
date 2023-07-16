@@ -55,10 +55,12 @@ namespace scales
 
   double GetEpsilonForSimplify(int level)
   {
-    // Keep better geometries on highest zoom to allow scaling them deeper
+    // Keep better geometries on highest zoom to allow scaling them deeper.
+    // Effectively it leads to x26 precision difference from geom scale 2 to 3.
+    // Keep crude geometries for all other zooms,
+    // x4 precision difference from geom scale 0 to 1 and 1 to 2.
     if (level == GetUpperScale())
       return GetEpsilonImpl(level, 0.4);
-    // Keep crude geometries for all other zooms
     else
       return GetEpsilonImpl(level, 1.3);
   }

@@ -622,6 +622,8 @@ void Generator::PackIsolinesForCountry(storage::CountryId const & countryId,
 
       CropContours(countryRect, countryRegions, params.m_maxIsolineLength,
                    params.m_alitudesStepFactor, isolines);
+      // Simplification is done already while processing tiles in ProcessTile().
+      // But now a different simpificationZoom could be applied?
       if (params.m_simplificationZoom > 0)
         SimplifyContours(params.m_simplificationZoom, isolines);
 

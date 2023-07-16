@@ -14,6 +14,7 @@
 #include "indexer/feature_algo.hpp"
 #include "indexer/feature_impl.hpp"
 #include "indexer/feature_processor.hpp"
+#include "indexer/ftypes_matcher.hpp"
 #include "indexer/scales.hpp"
 #include "indexer/scales_patch.hpp"
 
@@ -167,8 +168,11 @@ public:
         // Simplify and serialize geometry.
         Points points;
 
-        // Do not change linear geometry for the upper scale.
-        if (isLine && i == scalesStart && IsCountry() && routing::IsRoad(fb.GetTypes()))
+        // Do not change upper scale (the most detailed) linear geometry
+        // for roads (for more precise distances calculation)
+        // and for isolines (they had been simplified already while being generated).
+        if (isLine && i == scalesStart && IsCountry() &&
+            (routing::IsRoad(fb.GetTypes()) || ftypes::IsIsolineChecker::Instance()(fb.GetTypes())))
           points = holder.GetSourcePoints();
         else
           SimplifyPoints(level, isCoast, rect, holder.GetSourcePoints(), points);
