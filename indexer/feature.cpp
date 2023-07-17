@@ -7,6 +7,8 @@
 #include "indexer/map_object.hpp"
 #include "indexer/shared_load_info.hpp"
 
+#include "generator/feature_helpers.hpp"
+
 #include "geometry/mercator.hpp"
 
 #include "platform/preferred_languages.hpp"
@@ -472,6 +474,14 @@ void FeatureType::ParseGeometry(int scale)
             points.emplace_back(m_points[i]);
         }
         points.emplace_back(m_points.back());
+
+        // Discard closed degenerate lines (<=3 points, first == last).
+        // TODO: later we can optimize to points.size() == 2 check and assert for 3-points case
+        // as all newer mwms will have a possible 3rd point excluded already
+        // from the simplification mask by the generator, but the first and last points
+        // are not excludable, so have to check them explicitly still.
+        if (points.size() <= 3 && feature::ArePointsEqual(points.front(), points.back()))
+          points.clear();
 
         m_points.swap(points);
       }

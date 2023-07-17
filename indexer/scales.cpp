@@ -1,6 +1,7 @@
 #include "indexer/scales.hpp"
-#include "geometry/mercator.hpp"
 
+#include "indexer/feature_algo.hpp"
+#include "geometry/mercator.hpp"
 #include "base/math.hpp"
 
 #include <algorithm>
@@ -70,5 +71,18 @@ namespace scales
     ASSERT(level >= 0 && level <= GetUpperScale(), (level));
     // assume that feature is always visible in upper scale
     return (level == GetUpperScale() || std::max(r.SizeX(), r.SizeY()) > GetEpsilonForLevel(level));
+  }
+
+  bool IsGoodOutlineForLevel(int level, Points const & poly)
+  {
+    // Areas and closed lines have the same first and last points.
+    // Hence the minimum number of outline points is 4.
+    if (poly.size() < 4)
+      return false;
+
+    m2::RectD r;
+    feature::CalcRect(poly, r);
+
+    return IsGoodForLevel(level, r);
   }
 } // namespace scales

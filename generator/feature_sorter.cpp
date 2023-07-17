@@ -154,6 +154,11 @@ public:
 
     bool const isLine = fb.IsLine();
     bool const isArea = fb.IsArea();
+    bool const isCoast = fb.IsCoastCell();
+    m2::RectD const rect = fb.GetLimitRect();
+    auto const srcGeometry = fb.GetOuterGeometry();
+    bool const isClosedLine = isLine && srcGeometry.size() > 1 &&
+                              feature::ArePointsEqual(srcGeometry.front(), srcGeometry.back());
 
     int const scalesStart = static_cast<int>(m_header.GetScalesCount()) - 1;
     for (int i = scalesStart; i >= 0; --i)
@@ -162,9 +167,6 @@ public:
       if (fb.IsDrawableInRange(scales::PatchMinDrawableScale(i > 0 ? m_header.GetScale(i - 1) + 1 : 0),
                                scales::PatchMaxDrawableScale(level)))
       {
-        bool const isCoast = fb.IsCoastCell();
-        m2::RectD const rect = fb.GetLimitRect();
-
         // Simplify and serialize geometry.
         Points points;
 
@@ -173,17 +175,20 @@ public:
         // and for isolines (they had been simplified already while being generated).
         if (isLine && i == scalesStart && IsCountry() &&
             (routing::IsRoad(fb.GetTypes()) || ftypes::IsIsolineChecker::Instance()(fb.GetTypes())))
-          points = holder.GetSourcePoints();
+          points = srcGeometry;
         else
           SimplifyPoints(level, isCoast, rect, holder.GetSourcePoints(), points);
 
-        if (isLine)
+        // Discard closed lines which are degenerate (<=3 points, first == last).
+        // TODO: also discard too small (!IsGoodOutlineForLevel()) closed lines
+        // like fences, etc? (but not road roundabouts).
+        if (isLine && (!isClosedLine || points.size() > 3))
           holder.AddPoints(points, i);
 
         if (isArea && holder.NeedProcessTriangles())
         {
           // simplify and serialize triangles
-          bool const good = isCoast || IsGoodArea(points, level);
+          bool const good = isCoast || scales::IsGoodOutlineForLevel(level, points);
 
           // At this point we don't need last point equal to first.
           CHECK_GREATER(points.size(), 0, ());
@@ -209,7 +214,7 @@ public:
 
             // Increment level check for coastline polygons for the first scale level.
             // This is used for better coastlines quality.
-            if (IsGoodArea(simplified.back(), (isCoast && i == 0) ? level + 1 : level))
+            if (scales::IsGoodOutlineForLevel((isCoast && i == 0) ? level + 1 : level, simplified.back()))
             {
               // At this point we don't need last point equal to first.
               CHECK_GREATER(simplified.back().size(), 0, ());
@@ -262,19 +267,6 @@ private:
   };
 
   using TmpFiles = std::vector<std::unique_ptr<TmpFile>>;
-
-  static bool IsGoodArea(Points const & poly, int level)
-  {
-    // Area has the same first and last points. That's why minimal number of points for
-    // area is 4.
-    if (poly.size() < 4)
-      return false;
-
-    m2::RectD r;
-    CalcRect(poly, r);
-
-    return scales::IsGoodForLevel(level, r);
-  }
 
   bool IsCountry() const { return m_header.GetType() == feature::DataHeader::MapType::Country; }
 
