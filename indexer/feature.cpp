@@ -69,7 +69,7 @@ int GetScaleIndex(SharedLoadInfo const & loadInfo, int scale,
   case FeatureType::BEST_GEOMETRY:
     // Choose the best existing geometry for the last visible scale.
     ind = count - 1;
-    while (ind >= 0 && offsets[ind] == kInvalidOffset)
+    while (ind >= 0 && (offsets[ind] == kInvalidOffset || offsets[ind] == kHasGeoOffsetFlag))
       --ind;
     if (ind >= 0)
       return ind;
@@ -77,7 +77,7 @@ int GetScaleIndex(SharedLoadInfo const & loadInfo, int scale,
 
   case FeatureType::WORST_GEOMETRY:
     // Choose the worst existing geometry for the first visible scale.
-    while (ind < count && offsets[ind] == kInvalidOffset)
+    while (ind < count && (offsets[ind] == kInvalidOffset || offsets[ind] == kHasGeoOffsetFlag))
       ++ind;
     if (ind < count)
       return ind;
@@ -89,15 +89,16 @@ int GetScaleIndex(SharedLoadInfo const & loadInfo, int scale,
     int const lastScale = loadInfo.GetLastScale();
     if (scale > lastScale)
       scale = lastScale;
-    // If there is no geometry for the requested scale
-    // fallback to the next more detailed one.
-    while (ind < count && (scale > loadInfo.GetScale(ind) || offsets[ind] == kInvalidOffset))
+
+    // If there is no geometry for the requested scale (kHasGeoOffsetFlag) fallback to the next more detailed one.
+    while (ind < count && (scale > loadInfo.GetScale(ind) || offsets[ind] == kHasGeoOffsetFlag))
       ++ind;
+
     // Some WorldCoasts features have idx == 0 geometry only and its possible
     // other features to be visible on e.g. idx == 1 only,
     // but then they shouldn't be attempted to be drawn using other geom scales.
     ASSERT_LESS(ind, count, ("No suitable geometry scale range in the map file."));
-    return (ind < count ? ind : -1);
+    return (offsets[ind] != kInvalidOffset ? ind : -1);
   }
   }
 

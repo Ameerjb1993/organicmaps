@@ -5,17 +5,14 @@
 #include "generator/feature_helpers.hpp"
 #include "generator/tesselator.hpp"
 
-#include "geometry/parametrized_segment.hpp"
 #include "geometry/point2d.hpp"
 #include "geometry/polygon.hpp"
-#include "geometry/simplification.hpp"
 
 #include "indexer/classificator.hpp"
 #include "indexer/data_header.hpp"
+#include "indexer/feature.hpp"
 
-#include <cstdint>
 #include <functional>
-#include <limits>
 #include <list>
 #include <vector>
 
@@ -96,6 +93,11 @@ public:
         WriteOuterPoints(points, scaleIndex);
         m_ptsPrevCount = points.size();
       }
+      else
+      {
+        m_buffer.m_ptsMask |= (1 << scaleIndex);
+        m_buffer.m_ptsOffset.push_back(feature::kHasGeoOffsetFlag);
+      }
     }
   }
 
@@ -152,14 +154,21 @@ public:
   {
     CHECK(m_buffer.m_innerTrg.empty(), ());
     m_trgInner = false;
+
     size_t trgPointsCount = 0;
     for (auto const & points : polys)
       trgPointsCount += points.size();
+
     if (m_trgPrevCount == 0 ||
         (trgPointsCount + kGeomMinDiff <= m_trgPrevCount && trgPointsCount * kGeomMinFactor <= m_trgPrevCount))
     {
       WriteOuterTriangles(polys, scaleIndex);
       m_trgPrevCount = trgPointsCount;
+    }
+    else
+    {
+      m_buffer.m_trgMask |= (1 << scaleIndex);
+      m_buffer.m_trgOffset.push_back(feature::kHasGeoOffsetFlag);
     }
   }
 
@@ -194,6 +203,7 @@ private:
 
     m_buffer.m_ptsMask |= (1 << i);
     auto const pos = feature::CheckedFilePosCast(m_geoFileGetter(i));
+    CHECK(pos != feature::kHasGeoOffsetFlag, ());
     m_buffer.m_ptsOffset.push_back(pos);
 
     serial::SaveOuterPath(toSave, cp, m_geoFileGetter(i));
@@ -245,6 +255,7 @@ private:
     // saving to file
     m_buffer.m_trgMask |= (1 << i);
     auto const pos = feature::CheckedFilePosCast(m_trgFileGetter(i));
+    CHECK(pos != feature::kHasGeoOffsetFlag, ());
     m_buffer.m_trgOffset.push_back(pos);
     saver.Save(m_trgFileGetter(i));
   }

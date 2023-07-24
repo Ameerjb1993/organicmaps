@@ -17,7 +17,10 @@ namespace feature
 {
 class SharedLoadInfo;
 struct NameParamsOut; // Include feature_utils.hpp when using
-}
+
+// 1 is a "service" flag value. We are sure that there is no real geometry offset == 1.
+uint32_t constexpr kHasGeoOffsetFlag = 1;
+} // namespace feature
 
 namespace osm
 {
