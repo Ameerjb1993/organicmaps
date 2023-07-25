@@ -33,4 +33,4 @@ private:
 
   std::atomic<bool> m_enabled;
   GpsTrack m_track;
-};
+};hlxk
